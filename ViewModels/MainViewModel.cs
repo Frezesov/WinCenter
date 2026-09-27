@@ -285,6 +285,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         set => Update(_settings.ForceResize, value, v => _settings.ForceResize = v);
     }
 
+    public bool SmoothMove
+    {
+        get => _settings.SmoothMove;
+        set => Update(_settings.SmoothMove, value, v => _settings.SmoothMove = v);
+    }
+
     public bool Autostart
     {
         get => _autostart;
@@ -333,7 +339,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    internal CenterOptions CurrentOptions => new(CustomWidth, WidthPercent, CustomHeight, HeightPercent, ForceResize);
+    // Read on the UI thread: SystemParameters is not meant for the thread pool the centering runs on.
+    internal CenterOptions CurrentOptions => new(CustomWidth, WidthPercent, CustomHeight, HeightPercent, ForceResize,
+        Animate: SmoothMove && System.Windows.SystemParameters.ClientAreaAnimation);
 
     /// <summary>The window of another app the user was last in, or zero if it is gone.</summary>
     internal IntPtr LastWindow => WindowCenterer.IsCandidate(_watcher.LastWindow) ? _watcher.LastWindow : IntPtr.Zero;

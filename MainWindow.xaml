@@ -137,6 +137,11 @@
                 </StackPanel>
             </controls:SettingsExpander>
 
+            <controls:SettingsCard Glyph="&#xE7C2;" Title="Плавное перемещение"
+                                   Description="Окно плавно доезжает до центра, а не прыгает. Не работает, если в Windows выключены эффекты анимации">
+                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SmoothMove}" />
+            </controls:SettingsCard>
+
             <!-- Window size -->
             <TextBlock Text="Размер окна" Style="{StaticResource SectionTitle}" />
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace WinCenter.Core;
@@ -5,7 +6,7 @@ namespace WinCenter.Core;
 internal readonly record struct CenterOptions(
     bool CustomWidth, int WidthPercent,
     bool CustomHeight, int HeightPercent,
-    bool ForceResize);
+    bool ForceResize, bool Animate);
 
 internal static class WindowCenterer
 {
@@ -98,17 +99,17 @@ internal static class WindowCenterer
                 resize = true;
             }
 
-            Place(hwnd, work, rect, frame, w, h, resize);
+            Place(hwnd, work, rect, frame, w, h, resize, o.Animate);
 
             // Windows with min/max size constraints may reject the requested size; re-center on the real one.
             if (resize && TryGetBounds(hwnd, out rect, out frame) && (frame.Width != w || frame.Height != h))
-                Place(hwnd, work, rect, frame, frame.Width, frame.Height, resize: false);
+                Place(hwnd, work, rect, frame, frame.Width, frame.Height, resize: false, animate: false);
 
             return true;
         }
     }
 
-    private static void Place(IntPtr hwnd, Native.RECT work, Native.RECT rect, Native.RECT frame, int w, int h, bool resize)
+    private static void Place(IntPtr hwnd, Native.RECT work, Native.RECT rect, Native.RECT frame, int w, int h, bool resize, bool animate)
     {
         int left = work.Left + (work.Width - w) / 2;
         int top = h > work.Height ? work.Top : work.Top + (work.Height - h) / 2;
@@ -123,7 +124,41 @@ internal static class WindowCenterer
         if (!resize)
             flags |= Native.SWP_NOSIZE;
 
-        Native.SetWindowPos(hwnd, IntPtr.Zero, left - ml, top - mt, w + ml + mr, h + mt + mb, flags);
+        var target = new Native.RECT { Left = left - ml, Top = top - mt, Right = left + w + mr, Bottom = top + h + mb };
+        if (animate)
+            Glide(hwnd, rect, target, flags);
+        Native.SetWindowPos(hwnd, IntPtr.Zero, target.Left, target.Top, target.Width, target.Height, flags);
+    }
+
+    private const double GlideMs = 200;
+
+    // Moves the window toward the target once per compositor frame, fast at first and settling at the end
+    // like Windows' own window animations. The caller places the window exactly afterwards.
+    private static void Glide(IntPtr hwnd, Native.RECT from, Native.RECT to, uint flags)
+    {
+        int dx = to.Left - from.Left, dy = to.Top - from.Top;
+        int dw = to.Width - from.Width, dh = to.Height - from.Height;
+        if ((flags & Native.SWP_NOSIZE) != 0)
+            dw = dh = 0;
+        if (Math.Max(Math.Max(Math.Abs(dx), Math.Abs(dy)), Math.Max(Math.Abs(dw), Math.Abs(dh))) < 4)
+            return;
+        // A hung window would block every step for seconds.
+        if (Native.IsHungAppWindow(hwnd))
+            return;
+
+        var clock = Stopwatch.StartNew();
+        while (true)
+        {
+            double t = clock.Elapsed.TotalMilliseconds / GlideMs;
+            if (t >= 1)
+                return;
+            double k = 1 - Math.Pow(1 - t, 3);
+            Native.SetWindowPos(hwnd, IntPtr.Zero,
+                from.Left + (int)Math.Round(dx * k), from.Top + (int)Math.Round(dy * k),
+                from.Width + (int)Math.Round(dw * k), from.Height + (int)Math.Round(dh * k), flags);
+            if (Native.DwmFlush() != 0)
+                Thread.Sleep(10);
+        }
     }
 
     private static bool TryGetBounds(IntPtr hwnd, out Native.RECT rect, out Native.RECT frame)

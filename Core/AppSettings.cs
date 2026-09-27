@@ -19,6 +19,8 @@ public sealed class AppSettings
     public bool FastReaction { get; set; }
     public List<ExcludedApp> ExcludedApps { get; set; } = [];
 
+    public bool SmoothMove { get; set; } = true;
+
     public bool CustomWidth { get; set; }
     public int WidthPercent { get; set; } = 80;
     public bool CustomHeight { get; set; }
