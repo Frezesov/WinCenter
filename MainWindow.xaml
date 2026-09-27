@@ -4,7 +4,7 @@
         xmlns:controls="clr-namespace:WinCenter.Controls"
         Title="WinCenter"
         Icon="pack://application:,,,/Assets/app.ico"
-        Width="720" Height="820" MinWidth="520" MinHeight="480"
+        Width="720" Height="860" MinWidth="520" MinHeight="480"
         WindowStartupLocation="CenterScreen"
         FontFamily="{StaticResource AppFontFamily}"
         FontSize="14"

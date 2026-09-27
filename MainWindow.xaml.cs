@@ -13,6 +13,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = _vm = viewModel;
+        // The default height shows the whole page, but must not run past a small screen.
+        Height = Math.Max(MinHeight, Math.Min(Height, SystemParameters.WorkArea.Height - 32));
     }
 
     // Programs with open windows are offered first, like the "Add an app" pickers in Windows Settings.
