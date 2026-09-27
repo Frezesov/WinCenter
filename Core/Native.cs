@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal static class Native
 {

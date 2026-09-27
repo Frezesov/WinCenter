@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>WindowCentering</AssemblyName>
-    <RootNamespace>WindowCentering</RootNamespace>
+    <AssemblyName>WinCenter</AssemblyName>
+    <RootNamespace>WinCenter</RootNamespace>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -19,8 +19,8 @@
     <DisableTransitiveFrameworkReferenceDownloads>true</DisableTransitiveFrameworkReferenceDownloads>
     <NuGetAudit>false</NuGetAudit>
     <Version>1.0.0</Version>
-    <Product>Центровка окон</Product>
-    <AssemblyTitle>Центровка окон</AssemblyTitle>
+    <Product>WinCenter</Product>
+    <AssemblyTitle>WinCenter</AssemblyTitle>
     <Description>Центрирование окон по сочетанию клавиш и автоматически</Description>
     <Copyright>Основано на Window Centering Helper (Kamil Szymborski)</Copyright>
     <NeutralLanguage>ru-RU</NeutralLanguage>

@@ -1,4 +1,4 @@
-<Application x:Class="WindowCentering.App"
+<Application x:Class="WinCenter.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ThemeMode="System"

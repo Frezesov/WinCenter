@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:WindowCentering.Controls">
+                    xmlns:controls="clr-namespace:WinCenter.Controls">
 
     <!-- Typography: Inter, system font as fallback -->
     <FontFamily x:Key="AppFontFamily">pack://application:,,,/Assets/Fonts/#Inter, Segoe UI Variable Text, Segoe UI</FontFamily>

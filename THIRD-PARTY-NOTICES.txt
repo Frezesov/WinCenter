@@ -1,4 +1,4 @@
-Центровка окон repeats the idea and feature set of the following program.
+WinCenter repeats the idea and feature set of the following program.
 
 Window Centering Helper by Kamil Szymborski — https://kamilszymborski.github.io/
 The original is closed-source freeware, so no code from it is used;

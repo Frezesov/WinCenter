@@ -1,6 +1,6 @@
 using System.Windows.Input;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 public readonly record struct Hotkey(ModifierKeys Modifiers, Key Key)
 {

@@ -4,15 +4,15 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Interop;
-using WindowCentering.Core;
-using WindowCentering.ViewModels;
+using WinCenter.Core;
+using WinCenter.ViewModels;
 using Forms = System.Windows.Forms;
 
-namespace WindowCentering.Tray;
+namespace WinCenter.Tray;
 
 internal sealed class TrayIcon : IDisposable
 {
-    private const string AppName = "Центровка окон";
+    private const string AppName = "WinCenter";
 
     private readonly MainViewModel _vm;
     private readonly Forms.NotifyIcon _notifyIcon;

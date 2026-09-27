@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal readonly record struct CenterOptions(
     bool CustomWidth, int WidthPercent,

@@ -1,6 +1,6 @@
 using System.Windows.Interop;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal sealed class HotkeyService : IDisposable
 {
@@ -14,7 +14,7 @@ internal sealed class HotkeyService : IDisposable
 
     public HotkeyService()
     {
-        _source = new HwndSource(new HwndSourceParameters("WindowCentering.Hotkeys")
+        _source = new HwndSource(new HwndSourceParameters("WinCenter.Hotkeys")
         {
             ParentWindow = HwndMessage,
             WindowStyle = 0,

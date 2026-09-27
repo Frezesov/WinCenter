@@ -1,7 +1,7 @@
 using System.Windows;
-using WindowCentering.ViewModels;
+using WinCenter.ViewModels;
 
-namespace WindowCentering;
+namespace WinCenter;
 
 public partial class MainWindow : Window
 {

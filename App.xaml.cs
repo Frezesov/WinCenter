@@ -1,12 +1,12 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
-using WindowCentering.Core;
-using WindowCentering.Themes;
-using WindowCentering.Tray;
-using WindowCentering.ViewModels;
+using WinCenter.Core;
+using WinCenter.Themes;
+using WinCenter.Tray;
+using WinCenter.ViewModels;
 
-namespace WindowCentering;
+namespace WinCenter;
 
 public partial class App : Application
 {

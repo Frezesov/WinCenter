@@ -1,8 +1,8 @@
-﻿<Window x:Class="WindowCentering.MainWindow"
+﻿<Window x:Class="WinCenter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="clr-namespace:WindowCentering.Controls"
-        Title="Центровка окон"
+        xmlns:controls="clr-namespace:WinCenter.Controls"
+        Title="WinCenter"
         Icon="pack://application:,,,/Assets/app.ico"
         Width="620" Height="800" MinWidth="500" MinHeight="480"
         WindowStartupLocation="CenterScreen"
@@ -37,7 +37,7 @@
                 </Viewbox>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Центровка окон" Style="{StaticResource PageTitle}" />
+                    <TextBlock Text="WinCenter" Style="{StaticResource PageTitle}" />
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <Ellipse Style="{StaticResource StatusDot}" />
                         <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold"

@@ -1,13 +1,13 @@
 using System.IO;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal static class ErrorLog
 {
     private static readonly object Gate = new();
 
     public static string FilePath { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WindowCentering", "error.log");
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WinCenter", "error.log");
 
     public static void Write(Exception ex)
     {

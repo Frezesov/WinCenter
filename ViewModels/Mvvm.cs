@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace WindowCentering.ViewModels;
+namespace WinCenter.ViewModels;
 
 public abstract class ObservableObject : INotifyPropertyChanged
 {

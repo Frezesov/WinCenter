@@ -1,8 +1,8 @@
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal sealed class SingleInstance : IDisposable
 {
-    private const string Id = "WindowCentering-7F3A2C91";
+    private const string Id = "WinCenter-7F3A2C91";
 
     private readonly Mutex _mutex;
     private readonly EventWaitHandle _showSignal;

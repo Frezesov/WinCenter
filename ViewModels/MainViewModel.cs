@@ -1,7 +1,7 @@
 using System.Windows.Threading;
-using WindowCentering.Core;
+using WinCenter.Core;
 
-namespace WindowCentering.ViewModels;
+namespace WinCenter.ViewModels;
 
 public sealed class MainViewModel : ObservableObject, IDisposable
 {

@@ -1,11 +1,11 @@
 using Microsoft.Win32;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal static class AutostartService
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = "WindowCentering";
+    private const string ValueName = "WinCenter";
     public const string TrayArgument = "--tray";
 
     private static string Command => $"\"{Environment.ProcessPath}\" {TrayArgument}";

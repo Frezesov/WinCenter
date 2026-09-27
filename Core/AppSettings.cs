@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows.Input;
 
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 public sealed class AppSettings
 {
@@ -46,7 +46,7 @@ internal sealed class SettingsStore
     {
         var exeDir = Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory;
         var portable = Path.Combine(exeDir, FileName);
-        var roaming = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WindowCentering", FileName);
+        var roaming = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WinCenter", FileName);
 
         if (File.Exists(portable)) return portable;
         if (File.Exists(roaming)) return roaming;

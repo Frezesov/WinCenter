@@ -1,4 +1,4 @@
-namespace WindowCentering.Core;
+namespace WinCenter.Core;
 
 internal sealed class ForegroundWatcher : IDisposable
 {

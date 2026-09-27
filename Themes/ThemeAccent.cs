@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Win32;
 
-namespace WindowCentering.Themes;
+namespace WinCenter.Themes;
 
 // Fluent bakes the Windows accent into ~65 brushes, so overriding SystemAccentColor* has no effect.
 // Instead every Fluent brush that uses an accent shade is re-created in the same role from the teal palette.
