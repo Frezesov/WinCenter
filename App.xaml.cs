@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using WinCenter.Core;
 using WinCenter.Themes;
@@ -36,9 +37,15 @@ public partial class App : Application
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         ThemeAccent.Attach(this);
 
-        // Respect "Animation effects" off in Windows settings; template content resolves this key lazily.
+        // Respect "Animation effects" off in Windows settings; template content resolves these keys lazily.
         if (!SystemParameters.ClientAreaAnimation)
+        {
             Resources["MotionFast"] = new Duration(TimeSpan.Zero);
+            Resources["MotionMenu"] = new Duration(TimeSpan.Zero);
+        }
+
+        // Menus fade in from their own template; the popup's system slide/scroll would run on top of it.
+        Resources[SystemParameters.MenuPopupAnimationKey] = PopupAnimation.None;
 
         var store = new SettingsStore();
         _vm = new MainViewModel(store.Load(), store);

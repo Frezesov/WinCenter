@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Interop;
+using WinCenter.Controls;
 using WinCenter.Core;
 using WinCenter.ViewModels;
 using Forms = System.Windows.Forms;
@@ -39,14 +39,14 @@ internal sealed class TrayIcon : IDisposable
         _centerItem.Click += (_, _) => _vm.CenterWindow(_menuTarget);
 
         _menu = new ContextMenu { DataContext = vm };
-        _menu.SetResourceReference(Control.FontFamilyProperty, "AppFontFamily");
+        _menu.SetResourceReference(FrameworkElement.StyleProperty, "MenuStyle");
         _menu.Items.Add(_headerItem);
         _menu.Items.Add(new Separator());
         _menu.Items.Add(CheckItem("Центрирование включено", nameof(MainViewModel.Enabled)));
         _menu.Items.Add(_centerItem);
         _menu.Items.Add(new Separator());
-        _menu.Items.Add(CheckItem("По сочетанию клавиш", nameof(MainViewModel.HotkeyEnabled)));
-        _menu.Items.Add(CheckItem("Автоматически", nameof(MainViewModel.AutoEnabled)));
+        _menu.Items.Add(CheckItem("Центрирование по сочетанию клавиш", nameof(MainViewModel.HotkeyEnabled)));
+        _menu.Items.Add(CheckItem("Автоматическое центрирование окон", nameof(MainViewModel.AutoEnabled)));
         _menu.Items.Add(new Separator());
         _menu.Items.Add(CheckItem("Запускать вместе с Windows", nameof(MainViewModel.Autostart)));
         _menu.Items.Add(new MenuItem { Header = "Настройки…", FontWeight = FontWeights.SemiBold, Command = vm.OpenSettingsCommand });
@@ -122,9 +122,7 @@ internal sealed class TrayIcon : IDisposable
         _menuHost.Activate();
         Native.SetForegroundWindow(new WindowInteropHelper(_menuHost).Handle);
 
-        _menu.PlacementTarget = _menuHost;
-        _menu.Placement = PlacementMode.MousePoint;
-        _menu.IsOpen = true;
+        MenuPlacement.OpenAtCursor(_menu, _menuHost);
     }
 
     private static Window CreateMenuHost() => new()

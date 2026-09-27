@@ -12,6 +12,10 @@
     <Thickness x:Key="RowPadding">0,14,0,14</Thickness>
     <CornerRadius x:Key="CardCornerRadius">8</CornerRadius>
     <Duration x:Key="MotionFast">0:0:0.15</Duration>
+    <Duration x:Key="MotionMenu">0:0:0.15</Duration>
+
+    <!-- Transparent room around a menu for its shadow; MenuPlacement keeps the visible edge at the anchor -->
+    <Thickness x:Key="MenuShadowMargin">12,8,12,16</Thickness>
 
     <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
@@ -223,6 +227,58 @@
                             <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOnDisabled}" />
                             <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOnDisabled}" />
                         </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Context menu: the Fluent look, but it fades in like Windows menus instead of sliding down, and casts a shadow -->
+    <Style x:Key="MenuStyle" TargetType="ContextMenu">
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource ContextMenuForeground}" />
+        <Setter Property="Foreground" Value="{DynamicResource ContextMenuForeground}" />
+        <Setter Property="Background" Value="{DynamicResource ContextMenuBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="MinWidth" Value="140" />
+        <Setter Property="HasDropShadow" Value="False" />
+        <Setter Property="Grid.IsSharedSizeScope" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Grid x:Name="Root" Margin="{StaticResource MenuShadowMargin}">
+                        <Border CornerRadius="8" Background="{TemplateBinding Background}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Opacity="0.22" />
+                            </Border.Effect>
+                        </Border>
+                        <Border Padding="0,3,0,3" CornerRadius="8"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                <StackPanel ClipToBounds="True" IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsOpen" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity"
+                                                         From="0" To="1" Duration="{StaticResource MotionMenu}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
