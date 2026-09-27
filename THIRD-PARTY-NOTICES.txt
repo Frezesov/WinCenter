@@ -1,0 +1,10 @@
+Центровка окон repeats the idea and feature set of the following program.
+
+Window Centering Helper by Kamil Szymborski — https://kamilszymborski.github.io/
+The original is closed-source freeware, so no code from it is used;
+this program is an independent implementation.
+
+--------------------------------------------------------------------------------
+
+Inter font — https://rsms.me/inter/
+SIL Open Font License 1.1, see Assets/Fonts/LICENSE.txt.
