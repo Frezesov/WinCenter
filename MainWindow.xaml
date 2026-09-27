@@ -1,10 +1,10 @@
-﻿<Window x:Class="WinCenter.MainWindow"
+<Window x:Class="WinCenter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:WinCenter.Controls"
         Title="WinCenter"
         Icon="pack://application:,,,/Assets/app.ico"
-        Width="620" Height="800" MinWidth="500" MinHeight="480"
+        Width="720" Height="820" MinWidth="520" MinHeight="480"
         WindowStartupLocation="CenterScreen"
         FontFamily="{StaticResource AppFontFamily}"
         FontSize="14"
@@ -14,304 +14,166 @@
         <KeyBinding Key="Escape" Command="{Binding HideToTrayCommand}" />
     </Window.InputBindings>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
-        <StackPanel Margin="{StaticResource PagePadding}" MaxWidth="760">
+    <controls:SmoothScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="{StaticResource PagePadding}" MaxWidth="1000">
 
-            <!-- Header: logo, status, master switch -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <Viewbox Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Center">
-                    <Canvas Width="256" Height="256">
-                        <Rectangle Width="256" Height="256" RadiusX="56" RadiusY="56" Fill="#0078D4" />
-                        <Rectangle Canvas.Left="79" Canvas.Top="90" Width="98" Height="76" RadiusX="13" RadiusY="13" Fill="White" />
-                        <Line X1="128" Y1="44" X2="128" Y2="64" Stroke="White" StrokeThickness="17" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                        <Line X1="128" Y1="212" X2="128" Y2="192" Stroke="White" StrokeThickness="17" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                        <Line X1="44" Y1="128" X2="64" Y2="128" Stroke="White" StrokeThickness="17" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                        <Line X1="212" Y1="128" X2="192" Y2="128" Stroke="White" StrokeThickness="17" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                    </Canvas>
-                </Viewbox>
-
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="WinCenter" Style="{StaticResource PageTitle}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <Ellipse Style="{StaticResource StatusDot}" />
-                        <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                    </StackPanel>
-                    <TextBlock Text="{Binding StatusDetails}" Style="{StaticResource RowDescription}" />
-                </StackPanel>
-
-                <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                          IsChecked="{Binding Enabled}"
+            <!-- Status and master switch; the app name and icon are already in the title bar -->
+            <TextBlock Text="Состояние программы" Style="{StaticResource SectionTitle}" Margin="2,0,0,8" />
+            <controls:SettingsCard Glyph="{Binding StatusGlyph}" Title="{Binding StatusTitle}" Description="{Binding StatusDetails}">
+                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Enabled}"
                           ToolTip="Включить или приостановить центрирование"
                           AutomationProperties.Name="Центрирование включено" />
-            </Grid>
+            </controls:SettingsCard>
 
-            <!-- Hotkey -->
-            <TextBlock Text="Сочетание клавиш" Style="{StaticResource SectionTitle}" />
-            <Border Style="{StaticResource Card}">
-                <StackPanel>
-                    <Grid Margin="{StaticResource RowPadding}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <controls:Glyph Style="{StaticResource RowIcon}" Text="&#xE765;" />
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Style="{StaticResource RowTitle}" Text="Центрировать по сочетанию клавиш" />
-                            <TextBlock Style="{StaticResource RowDescription}"
-                                       Text="Активное окно встаёт ровно по центру экрана, на котором находится" />
-                        </StackPanel>
-                        <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding HotkeyEnabled}"
-                                  AutomationProperties.Name="Центрировать по сочетанию клавиш" />
-                    </Grid>
+            <!-- Centering -->
+            <TextBlock Text="Центрирование" Style="{StaticResource SectionTitle}" />
+
+            <controls:SettingsExpander Glyph="&#xE765;" IsExpanded="True"
+                                       Title="Центрирование по сочетанию клавиш"
+                                       Description="Активное окно встаёт ровно по центру экрана, на котором находится">
+                <controls:SettingsExpander.HeaderContent>
+                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HotkeyEnabled}" />
+                </controls:SettingsExpander.HeaderContent>
+                <controls:SettingsCard Style="{StaticResource SettingsRow}" IsEnabled="{Binding HotkeyEnabled}"
+                                       Title="Сочетание клавиш"
+                                       Description="Нажмите на поле и введите новое. Esc — отмена, Backspace — очистить">
+                    <controls:SettingsCard.Detail>
+                        <TextBlock Style="{StaticResource ErrorText}" Text="{Binding HotkeyError}" />
+                    </controls:SettingsCard.Detail>
+                    <controls:HotkeyBox Hotkey="{Binding Hotkey}"
+                                        IsCapturing="{Binding IsCapturingHotkey, Mode=OneWayToSource}"
+                                        AutomationProperties.Name="Сочетание клавиш для центрирования" />
+                </controls:SettingsCard>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander Glyph="&#xE945;"
+                                       Title="Автоматическое центрирование окон"
+                                       Description="Окна сами встают по центру, когда появляются на экране">
+                <controls:SettingsExpander.HeaderContent>
+                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AutoEnabled}" />
+                </controls:SettingsExpander.HeaderContent>
+                <StackPanel IsEnabled="{Binding AutoEnabled}">
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Только новые окна"
+                                           Description="Уже открытые окна остаются на своих местах, даже если переключиться на них">
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding OnlyNewWindows}" />
+                    </controls:SettingsCard>
                     <Border Style="{StaticResource Divider}" />
-                    <Grid Margin="{StaticResource RowPadding}" IsEnabled="{Binding HotkeyEnabled}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource RowTitle}" Text="Сочетание" />
-                            <TextBlock Style="{StaticResource RowDescription}"
-                                       Text="Нажмите на поле и введите новое. Esc — отмена, Backspace — очистить" />
-                            <TextBlock Style="{StaticResource ErrorText}" Text="{Binding HotkeyError}" />
-                        </StackPanel>
-                        <controls:HotkeyBox Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center"
-                                            Hotkey="{Binding Hotkey}"
-                                            IsCapturing="{Binding IsCapturingHotkey, Mode=OneWayToSource}"
-                                            AutomationProperties.Name="Сочетание клавиш для центрирования" />
-                    </Grid>
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Умный фильтр окон"
+                                           Description="Не трогать развёрнутые окна, меню и всплывающие панели без рамки">
+                        <controls:SettingsCard.Detail>
+                            <Border Style="{StaticResource Badge}" Margin="0,6,0,0" HorizontalAlignment="Left">
+                                <TextBlock Style="{StaticResource BadgeText}" Text="рекомендуется"
+                                           Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                            </Border>
+                        </controls:SettingsCard.Detail>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SmartFilter}" />
+                    </controls:SettingsCard>
+                    <Border Style="{StaticResource Divider}" />
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Мгновенная реакция"
+                                           Description="30 мс вместо 300 мс. Окно может сдвинуться раньше, чем закончит появляться">
+                        <controls:SettingsCard.Detail>
+                            <Border Style="{StaticResource Badge}" Margin="0,6,0,0" HorizontalAlignment="Left">
+                                <TextBlock Style="{StaticResource BadgeText}" Text="не рекомендуется"
+                                           Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                            </Border>
+                        </controls:SettingsCard.Detail>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding FastReaction}" />
+                    </controls:SettingsCard>
                 </StackPanel>
-            </Border>
-
-            <!-- Automatic centering -->
-            <TextBlock Text="Автоматическое центрирование" Style="{StaticResource SectionTitle}" />
-            <Border Style="{StaticResource Card}">
-                <StackPanel>
-                    <Grid Margin="{StaticResource RowPadding}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <controls:Glyph Style="{StaticResource RowIcon}" Text="&#xE945;" />
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Style="{StaticResource RowTitle}" Text="Центрировать автоматически" />
-                            <TextBlock Style="{StaticResource RowDescription}"
-                                       Text="Окна сами встают по центру, когда появляются на экране" />
-                        </StackPanel>
-                        <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding AutoEnabled}"
-                                  AutomationProperties.Name="Центрировать автоматически" />
-                    </Grid>
-
-                    <StackPanel IsEnabled="{Binding AutoEnabled}">
-                        <Border Style="{StaticResource Divider}" />
-                        <Grid Margin="{StaticResource RowPadding}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="36" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Style="{StaticResource RowTitle}" Text="Только новые окна" />
-                                <TextBlock Style="{StaticResource RowDescription}"
-                                           Text="Уже открытые окна остаются на своих местах, даже если переключиться на них" />
-                            </StackPanel>
-                            <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                      IsChecked="{Binding OnlyNewWindows}"
-                                      AutomationProperties.Name="Только новые окна" />
-                        </Grid>
-
-                        <Border Style="{StaticResource Divider}" />
-                        <Grid Margin="{StaticResource RowPadding}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="36" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="1">
-                                <WrapPanel>
-                                    <TextBlock Style="{StaticResource RowTitle}" Text="Умный фильтр окон" />
-                                    <Border Style="{StaticResource Badge}">
-                                        <TextBlock Style="{StaticResource BadgeText}" Text="рекомендуется"
-                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-                                    </Border>
-                                </WrapPanel>
-                                <TextBlock Style="{StaticResource RowDescription}"
-                                           Text="Не трогать развёрнутые окна, меню и всплывающие панели без рамки" />
-                            </StackPanel>
-                            <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                      IsChecked="{Binding SmartFilter}"
-                                      AutomationProperties.Name="Умный фильтр окон" />
-                        </Grid>
-
-                        <Border Style="{StaticResource Divider}" />
-                        <Grid Margin="{StaticResource RowPadding}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="36" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="1">
-                                <WrapPanel>
-                                    <TextBlock Style="{StaticResource RowTitle}" Text="Мгновенная реакция" />
-                                    <Border Style="{StaticResource Badge}">
-                                        <TextBlock Style="{StaticResource BadgeText}" Text="не рекомендуется"
-                                                   Foreground="{DynamicResource SystemFillColorCautionBrush}" />
-                                    </Border>
-                                </WrapPanel>
-                                <TextBlock Style="{StaticResource RowDescription}"
-                                           Text="30 мс вместо 300 мс. Окно может сдвинуться раньше, чем закончит появляться" />
-                            </StackPanel>
-                            <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                      IsChecked="{Binding FastReaction}"
-                                      AutomationProperties.Name="Мгновенная реакция" />
-                        </Grid>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+            </controls:SettingsExpander>
 
             <!-- Window size -->
             <TextBlock Text="Размер окна" Style="{StaticResource SectionTitle}" />
-            <Border Style="{StaticResource Card}">
+
+            <controls:SettingsExpander Glyph="&#xE9A6;"
+                                       Title="Размер окна при центрировании"
+                                       Description="По умолчанию окно сохраняет свой размер. Проценты считаются от рабочей области экрана без панели задач">
+                <controls:SettingsExpander.HeaderContent>
+                    <TextBlock Style="{StaticResource ValueText}" Text="{Binding SizeSummary}" />
+                </controls:SettingsExpander.HeaderContent>
                 <StackPanel>
-                    <Grid Margin="{StaticResource RowPadding}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <controls:Glyph Style="{StaticResource RowIcon}" Text="&#xE9A6;" />
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Style="{StaticResource RowTitle}" Text="Размер при центрировании" />
-                            <TextBlock Style="{StaticResource RowDescription}"
-                                       Text="По умолчанию окно сохраняет свой размер. Проценты считаются от рабочей области экрана без панели задач" />
-                        </StackPanel>
-                    </Grid>
-
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Задать ширину">
+                        <controls:SettingsCard.Detail>
+                            <Grid Margin="0,10,0,2" Visibility="{Binding CustomWidth, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Minimum="10" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                        SmallChange="5" LargeChange="10" VerticalAlignment="Center"
+                                        Value="{Binding WidthPercent}"
+                                        AutomationProperties.Name="Ширина окна в процентах" />
+                                <TextBlock Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource ValueText}"
+                                           Text="{Binding WidthPercent, StringFormat={}{0}&#160;%}" />
+                            </Grid>
+                        </controls:SettingsCard.Detail>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding CustomWidth}" />
+                    </controls:SettingsCard>
                     <Border Style="{StaticResource Divider}" />
-                    <Grid Margin="{StaticResource RowPadding}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Column="1" Style="{StaticResource RowTitle}" Text="Задать ширину" VerticalAlignment="Center" />
-                        <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding CustomWidth}"
-                                  AutomationProperties.Name="Задать ширину" />
-                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,10,0,0" Visibility="{Binding CustomWidth, Converter={StaticResource BoolToVisibility}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="56" />
-                            </Grid.ColumnDefinitions>
-                            <Slider Minimum="10" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
-                                    SmallChange="5" LargeChange="10" VerticalAlignment="Center"
-                                    Value="{Binding WidthPercent}"
-                                    AutomationProperties.Name="Ширина окна в процентах" />
-                            <TextBlock Grid.Column="1" TextAlignment="Right" VerticalAlignment="Center" FontWeight="Medium"
-                                       Text="{Binding WidthPercent, StringFormat={}{0}&#160;%}"
-                                       Style="{StaticResource RowTitle}" />
-                        </Grid>
-                    </Grid>
-
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Задать высоту">
+                        <controls:SettingsCard.Detail>
+                            <Grid Margin="0,10,0,2" Visibility="{Binding CustomHeight, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Minimum="10" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                        SmallChange="5" LargeChange="10" VerticalAlignment="Center"
+                                        Value="{Binding HeightPercent}"
+                                        AutomationProperties.Name="Высота окна в процентах" />
+                                <TextBlock Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource ValueText}"
+                                           Text="{Binding HeightPercent, StringFormat={}{0}&#160;%}" />
+                            </Grid>
+                        </controls:SettingsCard.Detail>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding CustomHeight}" />
+                    </controls:SettingsCard>
                     <Border Style="{StaticResource Divider}" />
-                    <Grid Margin="{StaticResource RowPadding}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Column="1" Style="{StaticResource RowTitle}" Text="Задать высоту" VerticalAlignment="Center" />
-                        <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding CustomHeight}"
-                                  AutomationProperties.Name="Задать высоту" />
-                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,10,0,0" Visibility="{Binding CustomHeight, Converter={StaticResource BoolToVisibility}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="56" />
-                            </Grid.ColumnDefinitions>
-                            <Slider Minimum="10" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
-                                    SmallChange="5" LargeChange="10" VerticalAlignment="Center"
-                                    Value="{Binding HeightPercent}"
-                                    AutomationProperties.Name="Высота окна в процентах" />
-                            <TextBlock Grid.Column="1" TextAlignment="Right" VerticalAlignment="Center" FontWeight="Medium"
-                                       Text="{Binding HeightPercent, StringFormat={}{0}&#160;%}"
-                                       Style="{StaticResource RowTitle}" />
-                        </Grid>
-                    </Grid>
-
-                    <Border Style="{StaticResource Divider}" />
-                    <Grid Margin="{StaticResource RowPadding}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Style="{StaticResource RowTitle}" Text="Менять размер у окон с фиксированным размером" />
-                            <TextBlock Style="{StaticResource RowDescription}"
-                                       Text="Размер меняется даже у окон, которые этого не поддерживают. Может исказить их вид" />
-                        </StackPanel>
-                        <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                                  IsChecked="{Binding ForceResize}"
-                                  AutomationProperties.Name="Менять размер у окон с фиксированным размером" />
-                    </Grid>
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Менять размер у окон с фиксированным размером"
+                                           Description="Размер меняется даже у окон, которые этого не поддерживают. Может исказить их вид">
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ForceResize}" />
+                    </controls:SettingsCard>
                 </StackPanel>
-            </Border>
+            </controls:SettingsExpander>
 
             <!-- System -->
             <TextBlock Text="Система" Style="{StaticResource SectionTitle}" />
-            <Border Style="{StaticResource Card}">
-                <Grid Margin="{StaticResource RowPadding}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <controls:Glyph Style="{StaticResource RowIcon}" Text="&#xE7E8;" />
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Style="{StaticResource RowTitle}" Text="Запускать вместе с Windows" />
-                        <TextBlock Style="{StaticResource RowDescription}"
-                                   Text="Программа стартует свёрнутой в трей. Управление — правой кнопкой по значку" />
-                    </StackPanel>
-                    <CheckBox Grid.Column="2" Margin="16,0,0,0" Style="{StaticResource ToggleSwitch}"
-                              IsChecked="{Binding Autostart}"
-                              AutomationProperties.Name="Запускать вместе с Windows" />
-                </Grid>
-            </Border>
 
-            <!-- Footer -->
-            <Grid Margin="0,24,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource RowDescription}" VerticalAlignment="Center" Margin="2,0,16,0"
-                           Text="Версия 1.0 · основано на Window Centering Helper — Kamil Szymborski" />
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="Выход" Command="{Binding ExitCommand}" MinWidth="96" Margin="0,0,8,0" />
-                    <Button Content="Свернуть в трей" Command="{Binding HideToTrayCommand}" MinWidth="140"
-                            Style="{DynamicResource AccentButtonStyle}" />
+            <controls:SettingsCard Glyph="&#xE7E8;" Title="Запускать вместе с Windows"
+                                   Description="Программа стартует свёрнутой в трей. Закрытое окно тоже прячется в трей — управление правой кнопкой по значку">
+                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Autostart}" />
+            </controls:SettingsCard>
+
+            <controls:SettingsExpander Glyph="&#xE946;" Title="О программе" Description="{Binding VersionText}">
+                <StackPanel>
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Страница проекта"
+                                           Description="Исходный код, новые версии и описание на GitHub">
+                        <Button Command="{Binding OpenProjectPageCommand}" AutomationProperties.Name="Открыть страницу проекта на GitHub">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="GitHub" />
+                                <controls:Glyph Text="&#xE8A7;" FontFamily="{StaticResource IconFontFamily}" FontSize="12"
+                                                Margin="8,1,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </controls:SettingsCard>
+                    <Border Style="{StaticResource Divider}" />
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Основано на Window Centering Helper"
+                                           Description="Идея и набор функций — Kamil Szymborski. Код оригинала закрыт, эта программа написана с нуля">
+                        <Button Command="{Binding OpenOriginalCommand}" AutomationProperties.Name="Открыть сайт Window Centering Helper">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Сайт автора" />
+                                <controls:Glyph Text="&#xE8A7;" FontFamily="{StaticResource IconFontFamily}" FontSize="12"
+                                                Margin="8,1,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </controls:SettingsCard>
+                    <Border Style="{StaticResource Divider}" />
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Выйти из программы"
+                                           Description="Окна перестанут центрироваться до следующего запуска WinCenter">
+                        <Button Content="Выйти" MinWidth="96" Command="{Binding ExitCommand}"
+                                AutomationProperties.Name="Выйти из программы" />
+                    </controls:SettingsCard>
                 </StackPanel>
-            </Grid>
+            </controls:SettingsExpander>
         </StackPanel>
-    </ScrollViewer>
+    </controls:SmoothScrollViewer>
 </Window>

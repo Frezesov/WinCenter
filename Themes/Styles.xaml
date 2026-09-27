@@ -6,13 +6,17 @@
     <FontFamily x:Key="AppFontFamily">pack://application:,,,/Assets/Fonts/#Inter, Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="IconFontFamily">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
-    <!-- Spacing / shape tokens -->
-    <Thickness x:Key="PagePadding">24,20,24,24</Thickness>
-    <Thickness x:Key="CardPadding">16,0,16,0</Thickness>
-    <Thickness x:Key="RowPadding">0,14,0,14</Thickness>
-    <CornerRadius x:Key="CardCornerRadius">8</CornerRadius>
+    <!-- Spacing / shape tokens, after the cards of Windows 11 Settings -->
+    <Thickness x:Key="PagePadding">32,28,32,32</Thickness>
+    <Thickness x:Key="CardPadding">16,12,16,12</Thickness>
+    <Thickness x:Key="ExpanderHeaderPadding">16,12,8,12</Thickness>
+    <!-- Nested rows line up with the header text (16 + 20 icon + 20 gap) and with the header control (8 + 40 chevron) -->
+    <Thickness x:Key="NestedRowPadding">56,12,48,12</Thickness>
+    <Thickness x:Key="CardSpacing">0,0,0,4</Thickness>
+    <CornerRadius x:Key="CardCornerRadius">4</CornerRadius>
     <Duration x:Key="MotionFast">0:0:0.15</Duration>
     <Duration x:Key="MotionMenu">0:0:0.15</Duration>
+    <Duration x:Key="MotionExpand">0:0:0.25</Duration>
 
     <!-- Transparent room around a menu for its shadow; MenuPlacement keeps the visible edge at the anchor -->
     <Thickness x:Key="MenuShadowMargin">12,8,12,16</Thickness>
@@ -31,22 +35,16 @@
     </Style>
 
     <!-- Text styles -->
-    <Style x:Key="PageTitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="22" />
-        <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
-    </Style>
-
     <Style x:Key="SectionTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Margin" Value="2,24,0,8" />
+        <Setter Property="Margin" Value="2,28,0,8" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Setter Property="AutomationProperties.HeadingLevel" Value="Level2" />
     </Style>
 
     <Style x:Key="RowTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
         <Style.Triggers>
@@ -57,24 +55,30 @@
     </Style>
 
     <Style x:Key="RowDescription" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12.5" />
-        <Setter Property="Margin" Value="0,3,0,0" />
-        <Setter Property="LineHeight" Value="18" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="0,2,0,0" />
+        <Setter Property="LineHeight" Value="16" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
             </Trigger>
+            <Trigger Property="Text" Value="">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="Text" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="RowIcon" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource IconFontFamily}" />
-        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontSize" Value="20" />
         <Setter Property="Width" Value="20" />
-        <Setter Property="Margin" Value="0,1,16,0" />
-        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,0,20,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
         <Style.Triggers>
@@ -84,9 +88,22 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="ValueText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="MinWidth" Value="48" />
+        <Setter Property="TextAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="ErrorText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12.5" />
-        <Setter Property="LineHeight" Value="18" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="LineHeight" Value="16" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Margin" Value="0,6,0,0" />
         <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
@@ -100,34 +117,12 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="StatusDot" TargetType="Ellipse">
-        <Setter Property="Width" Value="8" />
-        <Setter Property="Height" Value="8" />
-        <Setter Property="Margin" Value="0,1,8,0" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Fill" Value="{DynamicResource SystemFillColorNeutralBrush}" />
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Enabled}" Value="True">
-                <Setter Property="Fill" Value="{DynamicResource AccentFillColorDefaultBrush}" />
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-
-    <!-- Surfaces -->
-    <Style x:Key="Card" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
-        <Setter Property="Padding" Value="{StaticResource CardPadding}" />
-    </Style>
-
     <Style x:Key="Divider" TargetType="Border">
         <Setter Property="Height" Value="1" />
-        <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
+        <Setter Property="Background" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
     </Style>
 
-    <!-- Status pill and badges -->
+    <!-- Badges next to a setting title -->
     <Style x:Key="Badge" TargetType="Border">
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="Padding" Value="6,1,6,2" />
@@ -147,7 +142,185 @@
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
     </Style>
 
-    <!-- Toggle switch (CheckBox semantics are kept for keyboard and screen readers) -->
+    <!-- Settings card: icon · title + description · control, optional detail underneath -->
+    <Style TargetType="controls:SettingsCard">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Margin" Value="{StaticResource CardSpacing}" />
+        <Setter Property="Padding" Value="{StaticResource CardPadding}" />
+        <Setter Property="MinHeight" Value="68" />
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:SettingsCard">
+                    <Border MinHeight="{TemplateBinding MinHeight}" Padding="{TemplateBinding Padding}"
+                            CornerRadius="{StaticResource CardCornerRadius}" SnapsToDevicePixels="True"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <controls:Glyph x:Name="Icon" Style="{StaticResource RowIcon}" Text="{TemplateBinding Glyph}" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Style="{StaticResource RowTitle}" Text="{TemplateBinding Title}" />
+                                <TextBlock Style="{StaticResource RowDescription}" Text="{TemplateBinding Description}" />
+                            </StackPanel>
+                            <ContentPresenter Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" />
+                            <!-- The detail brings its own top margin, so a collapsed one takes no room -->
+                            <ContentPresenter x:Name="DetailPresenter" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                                              Content="{TemplateBinding Detail}" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Glyph" Value="{x:Null}">
+                            <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="Detail" Value="{x:Null}">
+                            <Setter TargetName="DetailPresenter" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- The same card as a nested line inside a SettingsExpander -->
+    <Style x:Key="SettingsRow" TargetType="controls:SettingsCard" BasedOn="{StaticResource {x:Type controls:SettingsCard}}">
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="{StaticResource NestedRowPadding}" />
+        <Setter Property="MinHeight" Value="52" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style x:Key="ExpanderHeaderButton" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border Background="Transparent">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Settings group: a card whose header unfolds nested rows, like SettingsExpander in Windows 11 -->
+    <Style TargetType="controls:SettingsExpander">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Margin" Value="{StaticResource CardSpacing}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:SettingsExpander">
+                    <Border CornerRadius="{StaticResource CardCornerRadius}" BorderThickness="1" SnapsToDevicePixels="True"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                        <StackPanel>
+                            <Grid>
+                                <Border x:Name="HeaderBg" CornerRadius="3" Background="Transparent" />
+                                <ToggleButton x:Name="HeaderButton" Style="{StaticResource ExpanderHeaderButton}"
+                                              AutomationProperties.Name="{TemplateBinding Title}"
+                                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                    <Grid Margin="{StaticResource ExpanderHeaderPadding}" MinHeight="42">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="40" />
+                                        </Grid.ColumnDefinitions>
+                                        <controls:Glyph Style="{StaticResource RowIcon}" Text="{TemplateBinding Glyph}" />
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Style="{StaticResource RowTitle}" Text="{TemplateBinding Title}" />
+                                            <TextBlock Style="{StaticResource RowDescription}" Text="{TemplateBinding Description}" />
+                                        </StackPanel>
+                                        <ContentPresenter Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center"
+                                                          Content="{TemplateBinding HeaderContent}" />
+                                        <controls:Glyph Grid.Column="3" Text="&#xE70D;" FontSize="12"
+                                                        FontFamily="{StaticResource IconFontFamily}"
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        RenderTransformOrigin="0.5,0.5"
+                                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                            <controls:Glyph.RenderTransform>
+                                                <RotateTransform x:Name="ChevronTurn" />
+                                            </controls:Glyph.RenderTransform>
+                                        </controls:Glyph>
+                                    </Grid>
+                                </ToggleButton>
+                            </Grid>
+                            <Border x:Name="ContentHost" Visibility="Collapsed" BorderThickness="0,1,0,0"
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                                <ContentPresenter x:Name="ContentSite">
+                                    <ContentPresenter.RenderTransform>
+                                        <TranslateTransform x:Name="ContentShift" />
+                                    </ContentPresenter.RenderTransform>
+                                </ContentPresenter>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger SourceName="HeaderButton" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HeaderBg" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                        </Trigger>
+                        <Trigger SourceName="HeaderButton" Property="IsPressed" Value="True">
+                            <Setter TargetName="HeaderBg" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ContentHost" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="HeaderBg" Property="CornerRadius" Value="3,3,0,0" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ChevronTurn" Storyboard.TargetProperty="Angle"
+                                                         To="180" Duration="{StaticResource MotionFast}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="ContentSite" Storyboard.TargetProperty="Opacity"
+                                                         From="0" To="1" Duration="{StaticResource MotionExpand}" />
+                                        <DoubleAnimation Storyboard.TargetName="ContentShift" Storyboard.TargetProperty="Y"
+                                                         From="-12" To="0" Duration="{StaticResource MotionExpand}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ChevronTurn" Storyboard.TargetProperty="Angle"
+                                                         To="0" Duration="{StaticResource MotionFast}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Toggle switch with the "On/Off" label of Windows 11 Settings (CheckBox semantics are kept for keyboard and screen readers) -->
     <Style x:Key="ToggleSwitch" TargetType="CheckBox">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Focusable" Value="True" />
@@ -156,7 +329,9 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
-                    <Grid Background="Transparent" SnapsToDevicePixels="True">
+                    <StackPanel Orientation="Horizontal" Background="Transparent" SnapsToDevicePixels="True">
+                        <TextBlock x:Name="StateText" Text="Откл." FontSize="14" Margin="0,0,12,0" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
                         <Border x:Name="Track" Width="40" Height="20" CornerRadius="10" BorderThickness="1"
                                 Background="{DynamicResource ToggleSwitchFillOff}"
                                 BorderBrush="{DynamicResource ToggleSwitchStrokeOff}">
@@ -168,9 +343,10 @@
                                 </Ellipse.RenderTransform>
                             </Ellipse>
                         </Border>
-                    </Grid>
+                    </StackPanel>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="StateText" Property="Text" Value="Вкл." />
                             <Setter TargetName="Track" Property="Background" Value="{DynamicResource ToggleSwitchFillOn}" />
                             <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOn}" />
                             <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOn}" />
@@ -213,6 +389,7 @@
                             <Setter TargetName="Knob" Property="Margin" Value="2,0,0,0" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="StateText" Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
                             <Setter TargetName="Track" Property="Background" Value="{DynamicResource ToggleSwitchFillOffDisabled}" />
                             <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOffDisabled}" />
                             <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOffDisabled}" />
@@ -288,13 +465,13 @@
     <!-- Hotkey capture field rendered as keycaps -->
     <Style TargetType="controls:HotkeyBox">
         <Setter Property="MinWidth" Value="190" />
-        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="MinHeight" Value="34" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="controls:HotkeyBox">
-                    <Border x:Name="Root" CornerRadius="6" BorderThickness="1" Padding="6,4,10,4"
+                    <Border x:Name="Root" CornerRadius="4" BorderThickness="1" Padding="6,4,10,4"
                             Background="{DynamicResource ControlFillColorDefaultBrush}"
                             BorderBrush="{DynamicResource ControlStrokeColorSecondaryBrush}">
                         <DockPanel LastChildFill="True">

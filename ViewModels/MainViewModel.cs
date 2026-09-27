@@ -5,6 +5,9 @@ namespace WinCenter.ViewModels;
 
 public sealed class MainViewModel : ObservableObject, IDisposable
 {
+    private const string ProjectPage = "https://github.com/Frezesov/WinCenter";
+    private const string OriginalPage = "https://kamilszymborski.github.io/";
+
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly HotkeyService _hotkeys;
@@ -47,6 +50,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _watcher.Start();
 
         OpenSettingsCommand = new RelayCommand(() => OpenSettingsRequested?.Invoke());
+        OpenProjectPageCommand = new RelayCommand(() => OpenLink(ProjectPage));
+        OpenOriginalCommand = new RelayCommand(() => OpenLink(OriginalPage));
         HideToTrayCommand = new RelayCommand(() => HideRequested?.Invoke());
         ExitCommand = new RelayCommand(() => ExitRequested?.Invoke());
 
@@ -55,6 +60,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     public RelayCommand OpenSettingsCommand { get; }
+    public RelayCommand OpenProjectPageCommand { get; }
+    public RelayCommand OpenOriginalCommand { get; }
     public RelayCommand HideToTrayCommand { get; }
     public RelayCommand ExitCommand { get; }
 
@@ -68,6 +75,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             ApplyHotkey();
             _auto.SetActive(value && AutoEnabled);
             OnPropertyChanged(nameof(StatusText));
+            OnPropertyChanged(nameof(StatusTitle));
+            OnPropertyChanged(nameof(StatusGlyph));
             OnPropertyChanged(nameof(StatusDetails));
         }
     }
@@ -162,26 +171,50 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public bool CustomWidth
     {
         get => _settings.CustomWidth;
-        set => Update(_settings.CustomWidth, value, v => _settings.CustomWidth = v);
+        set
+        {
+            if (Update(_settings.CustomWidth, value, v => _settings.CustomWidth = v))
+                OnPropertyChanged(nameof(SizeSummary));
+        }
     }
 
     public int WidthPercent
     {
         get => _settings.WidthPercent;
-        set => Update(_settings.WidthPercent, Math.Clamp(value, 10, 100), v => _settings.WidthPercent = v);
+        set
+        {
+            if (Update(_settings.WidthPercent, Math.Clamp(value, 10, 100), v => _settings.WidthPercent = v))
+                OnPropertyChanged(nameof(SizeSummary));
+        }
     }
 
     public bool CustomHeight
     {
         get => _settings.CustomHeight;
-        set => Update(_settings.CustomHeight, value, v => _settings.CustomHeight = v);
+        set
+        {
+            if (Update(_settings.CustomHeight, value, v => _settings.CustomHeight = v))
+                OnPropertyChanged(nameof(SizeSummary));
+        }
     }
 
     public int HeightPercent
     {
         get => _settings.HeightPercent;
-        set => Update(_settings.HeightPercent, Math.Clamp(value, 10, 100), v => _settings.HeightPercent = v);
+        set
+        {
+            if (Update(_settings.HeightPercent, Math.Clamp(value, 10, 100), v => _settings.HeightPercent = v))
+                OnPropertyChanged(nameof(SizeSummary));
+        }
     }
+
+    public string SizeSummary => (CustomWidth, CustomHeight) switch
+    {
+        (true, true) => $"{WidthPercent} % × {HeightPercent} %",
+        (true, false) => $"Ширина {WidthPercent} %",
+        (false, true) => $"Высота {HeightPercent} %",
+        _ => "Как есть",
+    };
 
     public bool ForceResize
     {
@@ -211,6 +244,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     public string StatusText => Enabled ? "Работает" : "Приостановлено";
+
+    public string StatusTitle => Enabled ? "Центрирование работает" : "Центрирование приостановлено";
+
+    // Segoe Fluent Icons: Completed when running, Pause when paused.
+    public string StatusGlyph => Enabled ? "" : "";
+
+    public string VersionText { get; } =
+        $"Версия {(typeof(MainViewModel).Assembly.GetName().Version ?? new Version(1, 0, 0)).ToString(3)}";
 
     public string HotkeyText => Hotkey.ToString();
 
@@ -267,6 +308,18 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         HotkeyError = _hotkeys.Register(Hotkey)
             ? null
             : "Сочетание уже занято системой или другой программой — выберите другое";
+    }
+
+    private static void OpenLink(string url)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            ErrorLog.Write(ex);
+        }
     }
 
     private void ScheduleSave()

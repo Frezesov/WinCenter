@@ -42,6 +42,7 @@ public partial class App : Application
         {
             Resources["MotionFast"] = new Duration(TimeSpan.Zero);
             Resources["MotionMenu"] = new Duration(TimeSpan.Zero);
+            Resources["MotionExpand"] = new Duration(TimeSpan.Zero);
         }
 
         // Menus fade in from their own template; the popup's system slide/scroll would run on top of it.
