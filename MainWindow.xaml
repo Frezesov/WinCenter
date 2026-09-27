@@ -36,7 +36,7 @@
                 </controls:SettingsExpander.HeaderContent>
                 <controls:SettingsCard Style="{StaticResource SettingsRow}" IsEnabled="{Binding HotkeyEnabled}"
                                        Title="Сочетание клавиш"
-                                       Description="Нажмите на поле и введите новое. Esc — отмена, Backspace — очистить">
+                                       Description="Нажмите на поле и введите новое, можно с Win. Esc — отмена, Backspace — очистить">
                     <controls:SettingsCard.Detail>
                         <TextBlock Style="{StaticResource ErrorText}" Text="{Binding HotkeyError}" />
                     </controls:SettingsCard.Detail>

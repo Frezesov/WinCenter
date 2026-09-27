@@ -501,9 +501,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 : null;
             return;
         }
-        HotkeyError = _hotkeys.Register(Hotkey)
-            ? null
-            : "Сочетание уже занято системой или другой программой — выберите другое";
+        _hotkeys.Register(Hotkey);
+        HotkeyError = null;
     }
 
     private static void OpenLink(string url)
