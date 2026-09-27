@@ -120,7 +120,7 @@
 
     <Style x:Key="Divider" TargetType="Border">
         <Setter Property="Height" Value="1" />
-        <Setter Property="Background" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
     </Style>
 
     <!-- Badges next to a setting title -->
@@ -263,7 +263,7 @@
                                 </ToggleButton>
                             </Grid>
                             <Border x:Name="ContentHost" Visibility="Collapsed" BorderThickness="0,1,0,0"
-                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                                    BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}">
                                 <ContentPresenter x:Name="ContentSite">
                                     <ContentPresenter.RenderTransform>
                                         <TranslateTransform x:Name="ContentShift" />
