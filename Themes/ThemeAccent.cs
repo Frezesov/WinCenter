@@ -7,16 +7,17 @@ using Microsoft.Win32;
 namespace WinCenter.Themes;
 
 // Fluent bakes the Windows accent into ~65 brushes, so overriding SystemAccentColor* has no effect.
-// Instead every Fluent brush that uses an accent shade is re-created in the same role from the teal palette.
+// Instead every Fluent brush that uses an accent shade is re-created in the same role from the palette of
+// the default Windows 11 blue, so the app looks the same whatever accent the user picked.
 internal static class ThemeAccent
 {
-    private static readonly Color Teal = Hex("#0D9488");
-    private static readonly Color TealLight1 = Hex("#14B8A6");
-    private static readonly Color TealLight2 = Hex("#2DD4BF");
-    private static readonly Color TealLight3 = Hex("#5EEAD4");
-    private static readonly Color TealDark1 = Hex("#0F766E");
-    private static readonly Color TealDark2 = Hex("#115E59");
-    private static readonly Color TealDark3 = Hex("#134E4A");
+    private static readonly Color Blue = Hex("#0078D4");
+    private static readonly Color BlueLight1 = Hex("#0091F8");
+    private static readonly Color BlueLight2 = Hex("#4CC2FF");
+    private static readonly Color BlueLight3 = Hex("#99EBFF");
+    private static readonly Color BlueDark1 = Hex("#0067C0");
+    private static readonly Color BlueDark2 = Hex("#003E92");
+    private static readonly Color BlueDark3 = Hex("#001A68");
 
     private static readonly List<object> AppliedKeys = [];
     private static Application? _app;
@@ -60,13 +61,13 @@ internal static class ThemeAccent
             return;
 
         var map = new Dictionary<Color, Color>();
-        map.TryAdd(Rgb(SystemColors.AccentColor), Teal);
-        map.TryAdd(Rgb(SystemColors.AccentColorLight1), TealLight1);
-        map.TryAdd(Rgb(SystemColors.AccentColorLight2), TealLight2);
-        map.TryAdd(Rgb(SystemColors.AccentColorLight3), TealLight3);
-        map.TryAdd(Rgb(SystemColors.AccentColorDark1), TealDark1);
-        map.TryAdd(Rgb(SystemColors.AccentColorDark2), TealDark2);
-        map.TryAdd(Rgb(SystemColors.AccentColorDark3), TealDark3);
+        map.TryAdd(Rgb(SystemColors.AccentColor), Blue);
+        map.TryAdd(Rgb(SystemColors.AccentColorLight1), BlueLight1);
+        map.TryAdd(Rgb(SystemColors.AccentColorLight2), BlueLight2);
+        map.TryAdd(Rgb(SystemColors.AccentColorLight3), BlueLight3);
+        map.TryAdd(Rgb(SystemColors.AccentColorDark1), BlueDark1);
+        map.TryAdd(Rgb(SystemColors.AccentColorDark2), BlueDark2);
+        map.TryAdd(Rgb(SystemColors.AccentColorDark3), BlueDark3);
 
         var replacements = new Dictionary<object, object>();
         foreach (var dictionary in resources.MergedDictionaries)
@@ -89,13 +90,13 @@ internal static class ThemeAccent
         {
             switch (entry.Value)
             {
-                case SolidColorBrush brush when map.TryGetValue(Rgb(brush.Color), out var teal):
-                    var replacement = new SolidColorBrush(Color.FromArgb(brush.Color.A, teal.R, teal.G, teal.B));
+                case SolidColorBrush brush when map.TryGetValue(Rgb(brush.Color), out var blue):
+                    var replacement = new SolidColorBrush(Color.FromArgb(brush.Color.A, blue.R, blue.G, blue.B));
                     replacement.Freeze();
                     result[entry.Key] = replacement;
                     break;
-                case Color color when map.TryGetValue(Rgb(color), out var tealColor):
-                    result[entry.Key] = Color.FromArgb(color.A, tealColor.R, tealColor.G, tealColor.B);
+                case Color color when map.TryGetValue(Rgb(color), out var blueColor):
+                    result[entry.Key] = Color.FromArgb(color.A, blueColor.R, blueColor.G, blueColor.B);
                     break;
             }
         }

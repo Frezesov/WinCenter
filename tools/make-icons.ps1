@@ -100,17 +100,17 @@ function Write-Ico([string]$path, [System.Drawing.Color]$tile) {
 }
 
 New-Item -ItemType Directory -Force $OutDir | Out-Null
-Write-Ico (Join-Path $OutDir 'app.ico') ([System.Drawing.ColorTranslator]::FromHtml('#0D9488'))
+Write-Ico (Join-Path $OutDir 'app.ico') ([System.Drawing.ColorTranslator]::FromHtml('#0078D4'))
 Write-Ico (Join-Path $OutDir 'app-paused.ico') ([System.Drawing.ColorTranslator]::FromHtml('#64748B'))
 if ($env:ICON_PREVIEW) {
     $sheet = New-Object System.Drawing.Bitmap(600, 300)
     $g = [System.Drawing.Graphics]::FromImage($sheet)
     $g.Clear([System.Drawing.Color]::FromArgb(32, 32, 32))
     $g.InterpolationMode = 'NearestNeighbor'
-    $g.DrawImage((New-IconBitmap 256 ([System.Drawing.ColorTranslator]::FromHtml('#0D9488'))), 0, 0)
+    $g.DrawImage((New-IconBitmap 256 ([System.Drawing.ColorTranslator]::FromHtml('#0078D4'))), 0, 0)
     $x = 272
     foreach ($s in 16, 24, 32) {
-        $g.DrawImage((New-IconBitmap $s ([System.Drawing.ColorTranslator]::FromHtml('#0D9488'))), $x, 16, $s * 4, $s * 4)
+        $g.DrawImage((New-IconBitmap $s ([System.Drawing.ColorTranslator]::FromHtml('#0078D4'))), $x, 16, $s * 4, $s * 4)
         $g.DrawImage((New-IconBitmap $s ([System.Drawing.ColorTranslator]::FromHtml('#64748B'))), $x, 160, $s * 4, $s * 4)
         $x += $s * 4 + 8
     }

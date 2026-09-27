@@ -27,7 +27,7 @@
 
                 <Viewbox Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Center">
                     <Canvas Width="256" Height="256">
-                        <Rectangle Width="256" Height="256" RadiusX="56" RadiusY="56" Fill="#0D9488" />
+                        <Rectangle Width="256" Height="256" RadiusX="56" RadiusY="56" Fill="#0078D4" />
                         <Rectangle Canvas.Left="79" Canvas.Top="90" Width="98" Height="76" RadiusX="13" RadiusY="13" Fill="White" />
                         <Line X1="128" Y1="44" X2="128" Y2="64" Stroke="White" StrokeThickness="17" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                         <Line X1="128" Y1="212" X2="128" Y2="192" Stroke="White" StrokeThickness="17" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
