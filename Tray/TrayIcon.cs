@@ -22,6 +22,7 @@ internal sealed class TrayIcon : IDisposable
     private readonly MenuItem _headerItem;
     private readonly MenuItem _centerItem;
     private Window? _menuHost;
+    private IntPtr _menuTarget;
 
     public TrayIcon(MainViewModel vm)
     {
@@ -34,7 +35,8 @@ internal sealed class TrayIcon : IDisposable
         _notifyIcon.MouseUp += OnMouseUp;
 
         _headerItem = new MenuItem { IsEnabled = false, FontWeight = FontWeights.SemiBold };
-        _centerItem = new MenuItem { Header = "Центрировать активное окно", Command = vm.CenterLastWindowCommand };
+        _centerItem = new MenuItem();
+        _centerItem.Click += (_, _) => _vm.CenterWindow(_menuTarget);
 
         _menu = new ContextMenu { DataContext = vm };
         _menu.SetResourceReference(Control.FontFamilyProperty, "AppFontFamily");
@@ -107,6 +109,14 @@ internal sealed class TrayIcon : IDisposable
     // so an invisible host window is activated first.
     private void ShowMenu()
     {
+        // The target is fixed before the menu takes the foreground, and named so it is clear what will move.
+        _menuTarget = _vm.LastWindow;
+        var name = _menuTarget == IntPtr.Zero ? "" : WindowInfo.GetDisplayName(_menuTarget);
+        _centerItem.Header = _menuTarget == IntPtr.Zero
+            ? "Нет окна для центрирования"
+            : name.Length == 0 ? "Центрировать последнее окно" : $"Центрировать окно «{WindowInfo.Shorten(name, 40)}»";
+        _centerItem.IsEnabled = _menuTarget != IntPtr.Zero;
+
         _menuHost ??= CreateMenuHost();
         _menuHost.Show();
         _menuHost.Activate();

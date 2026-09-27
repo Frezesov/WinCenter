@@ -32,8 +32,9 @@ internal sealed class ForegroundWatcher : IDisposable
         ForegroundChanged?.Invoke(hwnd);
     }
 
+    // Tool windows (tray panels, palettes, notifications) never count as "the window the user worked in".
     private static bool IsTrackable(IntPtr hwnd) =>
-        WindowCenterer.IsCandidate(hwnd) && !WindowCenterer.IsOwnWindow(hwnd);
+        WindowCenterer.IsCandidate(hwnd) && !WindowCenterer.IsOwnWindow(hwnd) && !WindowCenterer.IsToolWindow(hwnd);
 
     public void Dispose()
     {

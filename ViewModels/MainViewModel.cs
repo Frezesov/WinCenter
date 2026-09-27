@@ -46,7 +46,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _watcher.ForegroundChanged += _auto.OnForegroundChanged;
         _watcher.Start();
 
-        CenterLastWindowCommand = new RelayCommand(() => CenterAsync(_watcher.LastWindow));
         OpenSettingsCommand = new RelayCommand(() => OpenSettingsRequested?.Invoke());
         HideToTrayCommand = new RelayCommand(() => HideRequested?.Invoke());
         ExitCommand = new RelayCommand(() => ExitRequested?.Invoke());
@@ -55,7 +54,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _auto.SetActive(Enabled && AutoEnabled);
     }
 
-    public RelayCommand CenterLastWindowCommand { get; }
     public RelayCommand OpenSettingsCommand { get; }
     public RelayCommand HideToTrayCommand { get; }
     public RelayCommand ExitCommand { get; }
@@ -232,6 +230,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     internal CenterOptions CurrentOptions => new(CustomWidth, WidthPercent, CustomHeight, HeightPercent, ForceResize);
+
+    /// <summary>The window of another app the user was last in, or zero if it is gone.</summary>
+    internal IntPtr LastWindow => WindowCenterer.IsCandidate(_watcher.LastWindow) ? _watcher.LastWindow : IntPtr.Zero;
+
+    internal void CenterWindow(IntPtr hwnd) => CenterAsync(hwnd);
 
     internal bool WelcomeShown => _settings.WelcomeShown;
 

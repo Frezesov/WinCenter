@@ -10,11 +10,14 @@ internal readonly record struct CenterOptions(
 internal static class WindowCenterer
 {
     // Class-name fragments of shell surfaces, menus and tooltips that must never be moved.
+    // TopLevelWindowForOverflowXamlIsland is the "Show hidden icons" panel of the Windows 11 tray.
     private static readonly string[] ExcludedClassParts =
     [
         "CoreWindow", "WorkerW", "Flyout", "DV2ControlHost", "NotifyIcon", "NativeHWNDHost", "Popup", "Progman",
         "Shell_TrayWnd", "Shell_SecondaryTrayWnd", "TaskListThumbnailWnd", "XamlExplorerHostIslandWindow",
         "ForegroundStaging", "MultitaskingViewFrame", "#32768", "tooltips_class32",
+        "TopLevelWindowForOverflowXamlIsland", "SystemTray_Main", "EdgeUiInputTopWndClass", "DummyDWMListenerWindow",
+        "ThumbnailDeviceHelperWnd", "TabletModeCoverWindow", "ApplicationManager_DesktopShellWindow",
     ];
 
     private static readonly object Gate = new();
