@@ -79,6 +79,61 @@
                         </controls:SettingsCard.Detail>
                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding FastReaction}" />
                     </controls:SettingsCard>
+                    <Border Style="{StaticResource Divider}" />
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Исключения"
+                                           Description="Окна этих программ не центрируются автоматически. Сочетание клавиш и меню в трее работают для них как обычно">
+                        <controls:SettingsCard.Detail>
+                            <StackPanel Margin="0,8,0,0">
+                                <TextBlock Style="{StaticResource RowDescription}" Margin="0,2,0,2"
+                                           Text="Список пуст — добавьте программу кнопкой справа"
+                                           Visibility="{Binding HasExclusions, Converter={StaticResource InverseBoolToVisibility}}" />
+                                <ItemsControl ItemsSource="{Binding ExcludedApps}" Focusable="False"
+                                              AutomationProperties.Name="Исключённые программы">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="32" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Image Source="{Binding Icon}" Width="20" Height="20" HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                <controls:Glyph Text="&#xE7C4;" FontFamily="{StaticResource IconFontFamily}" FontSize="18"
+                                                                VerticalAlignment="Center"
+                                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                                    <controls:Glyph.Style>
+                                                        <Style TargetType="controls:Glyph">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </controls:Glyph.Style>
+                                                </controls:Glyph>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" Style="{StaticResource RowTitle}" />
+                                                    <TextBlock Text="{Binding Exe}" Style="{StaticResource RowDescription}" Margin="0" />
+                                                </StackPanel>
+                                                <Button Grid.Column="2" Style="{StaticResource IconButton}" Content="&#xE711;"
+                                                        Command="{Binding RemoveCommand}" ToolTip="Убрать из исключений"
+                                                        AutomationProperties.Name="{Binding Name, StringFormat=Убрать {0} из исключений}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </controls:SettingsCard.Detail>
+                        <Button x:Name="AddExclusionButton" Click="OnAddExclusion" AutomationProperties.Name="Добавить программу в исключения">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Добавить" />
+                                <controls:Glyph Text="&#xE70D;" FontFamily="{StaticResource IconFontFamily}" FontSize="10"
+                                                Margin="8,1,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </controls:SettingsCard>
                 </StackPanel>
             </controls:SettingsExpander>
 

@@ -17,6 +17,7 @@ public sealed class AppSettings
     public bool OnlyNewWindows { get; set; } = true;
     public bool SmartFilter { get; set; } = true;
     public bool FastReaction { get; set; }
+    public List<ExcludedApp> ExcludedApps { get; set; } = [];
 
     public bool CustomWidth { get; set; }
     public int WidthPercent { get; set; } = 80;
@@ -25,6 +26,15 @@ public sealed class AppSettings
     public bool ForceResize { get; set; }
 
     public bool WelcomeShown { get; set; }
+}
+
+/// <summary>A program that automatic centering leaves alone, matched by its exe file name.</summary>
+public sealed class ExcludedApp
+{
+    public string Exe { get; set; } = "";
+
+    /// <summary>Where the exe was when it was added; only used for its name and icon.</summary>
+    public string? Path { get; set; }
 }
 
 internal sealed class SettingsStore

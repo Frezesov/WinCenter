@@ -15,6 +15,9 @@ internal sealed class AutoCenterService
     public bool SmartFilter { get; set; } = true;
     public bool FastReaction { get; set; }
 
+    /// <summary>Lower-case exe names to skip. Replaced as a whole, since it is read on the thread pool.</summary>
+    public IReadOnlySet<string> ExcludedExes { get; set; } = new HashSet<string>();
+
     public bool OnlyNewWindows
     {
         get => _onlyNewWindows;
@@ -73,11 +76,14 @@ internal sealed class AutoCenterService
 
             var options = _options();
             bool smart = SmartFilter;
+            var excluded = ExcludedExes;
             await Task.Run(() =>
             {
                 if (!WindowCenterer.IsCandidate(hwnd) || WindowCenterer.IsToolWindow(hwnd))
                     return;
                 if (smart && !WindowCenterer.PassesSmartFilter(hwnd))
+                    return;
+                if (excluded.Count > 0 && WindowInfo.GetExeName(hwnd) is { } exe && excluded.Contains(exe))
                     return;
                 WindowCenterer.Center(hwnd, options);
             });

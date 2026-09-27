@@ -21,8 +21,10 @@ internal sealed class TrayIcon : IDisposable
     private readonly ContextMenu _menu;
     private readonly MenuItem _headerItem;
     private readonly MenuItem _centerItem;
+    private readonly MenuItem _excludeItem;
     private Window? _menuHost;
     private IntPtr _menuTarget;
+    private string? _menuTargetPath;
 
     public TrayIcon(MainViewModel vm)
     {
@@ -37,6 +39,12 @@ internal sealed class TrayIcon : IDisposable
         _headerItem = new MenuItem { IsEnabled = false, FontWeight = FontWeights.SemiBold };
         _centerItem = new MenuItem();
         _centerItem.Click += (_, _) => _vm.CenterWindow(_menuTarget);
+        _excludeItem = new MenuItem();
+        _excludeItem.Click += (_, _) =>
+        {
+            if (_menuTargetPath is not null)
+                _vm.AddExclusion(_menuTargetPath);
+        };
 
         _menu = new ContextMenu { DataContext = vm };
         _menu.SetResourceReference(FrameworkElement.StyleProperty, "MenuStyle");
@@ -47,6 +55,7 @@ internal sealed class TrayIcon : IDisposable
         _menu.Items.Add(new Separator());
         _menu.Items.Add(CheckItem("Центрирование по сочетанию клавиш", nameof(MainViewModel.HotkeyEnabled)));
         _menu.Items.Add(CheckItem("Автоматическое центрирование окон", nameof(MainViewModel.AutoEnabled)));
+        _menu.Items.Add(_excludeItem);
         _menu.Items.Add(new Separator());
         _menu.Items.Add(CheckItem("Запускать вместе с Windows", nameof(MainViewModel.Autostart)));
         _menu.Items.Add(new MenuItem { Header = "Настройки…", FontWeight = FontWeights.SemiBold, Command = vm.OpenSettingsCommand });
@@ -116,6 +125,15 @@ internal sealed class TrayIcon : IDisposable
             ? "Нет окна для центрирования"
             : name.Length == 0 ? "Центрировать последнее окно" : $"Центрировать окно «{WindowInfo.Shorten(name, 40)}»";
         _centerItem.IsEnabled = _menuTarget != IntPtr.Zero;
+
+        _menuTargetPath = _menuTarget == IntPtr.Zero ? null : WindowInfo.GetProcessPath(_menuTarget);
+        var targetExe = _menuTargetPath is null ? "" : System.IO.Path.GetFileName(_menuTargetPath);
+        // Store apps all run in ApplicationFrameHost, so excluding it would exclude every one of them.
+        bool canExclude = _vm.AutoEnabled && targetExe.Length > 0 && !_vm.IsExcluded(targetExe)
+            && !targetExe.Equals("ApplicationFrameHost.exe", StringComparison.OrdinalIgnoreCase);
+        _excludeItem.Visibility = canExclude ? Visibility.Visible : Visibility.Collapsed;
+        if (canExclude)
+            _excludeItem.Header = $"Не центрировать «{WindowInfo.Shorten(WindowInfo.GetProgramName(_menuTargetPath!), 32)}» автоматически";
 
         _menuHost ??= CreateMenuHost();
         _menuHost.Show();

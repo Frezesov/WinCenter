@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Threading;
 using WinCenter.Core;
 
@@ -44,6 +46,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             SmartFilter = settings.SmartFilter,
             FastReaction = settings.FastReaction,
         };
+
+        settings.ExcludedApps.RemoveAll(a => string.IsNullOrWhiteSpace(a.Exe));
+        ExcludedApps = new ObservableCollection<ExcludedAppViewModel>(
+            settings.ExcludedApps.Select(a => new ExcludedAppViewModel(a, RemoveExclusion)));
+        ApplyExclusions();
 
         _watcher = new ForegroundWatcher();
         _watcher.ForegroundChanged += _auto.OnForegroundChanged;
@@ -166,6 +173,62 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             if (Update(_settings.FastReaction, value, v => _settings.FastReaction = v))
                 _auto.FastReaction = value;
         }
+    }
+
+    public ObservableCollection<ExcludedAppViewModel> ExcludedApps { get; }
+
+    public bool HasExclusions => ExcludedApps.Count > 0;
+
+    internal bool IsExcluded(string exe) =>
+        ExcludedApps.Any(a => string.Equals(a.Exe, exe, StringComparison.OrdinalIgnoreCase));
+
+    internal void AddExclusion(string path)
+    {
+        var exe = Path.GetFileName(path).ToLowerInvariant();
+        if (exe.Length == 0 || IsExcluded(exe))
+            return;
+        var app = new ExcludedApp { Exe = exe, Path = path };
+        _settings.ExcludedApps.Add(app);
+        ExcludedApps.Add(new ExcludedAppViewModel(app, RemoveExclusion));
+        ApplyExclusions();
+        ScheduleSave();
+    }
+
+    private void RemoveExclusion(ExcludedAppViewModel item)
+    {
+        if (!ExcludedApps.Remove(item))
+            return;
+        _settings.ExcludedApps.Remove(item.App);
+        ApplyExclusions();
+        ScheduleSave();
+    }
+
+    private void ApplyExclusions()
+    {
+        _auto.ExcludedExes = _settings.ExcludedApps.Select(a => a.Exe).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        OnPropertyChanged(nameof(HasExclusions));
+    }
+
+    /// <summary>Programs with a window on screen right now that are not excluded yet, by name.</summary>
+    internal IReadOnlyList<RunningProgram> GetRunningPrograms()
+    {
+        var found = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Native.EnumWindows((hwnd, _) =>
+        {
+            if (WindowCenterer.IsCandidate(hwnd) && !WindowCenterer.IsToolWindow(hwnd) && !WindowCenterer.IsOwnWindow(hwnd)
+                && WindowInfo.GetTitle(hwnd).Length > 0 && WindowInfo.GetProcessPath(hwnd) is { } path)
+            {
+                found.TryAdd(Path.GetFileName(path).ToLowerInvariant(), path);
+            }
+            return true;
+        }, IntPtr.Zero);
+
+        // Store apps all run in ApplicationFrameHost, so it cannot stand for one of them.
+        return found
+            .Where(p => p.Key != "applicationframehost.exe" && !IsExcluded(p.Key))
+            .Select(p => new RunningProgram(p.Value, p.Key, WindowInfo.GetProgramName(p.Value)))
+            .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
     }
 
     public bool CustomWidth
