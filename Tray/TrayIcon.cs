@@ -58,6 +58,11 @@ internal sealed class TrayIcon : IDisposable
         _menu.Items.Add(_excludeItem);
         _menu.Items.Add(new Separator());
         _menu.Items.Add(CheckItem("Запускать вместе с Windows", nameof(MainViewModel.Autostart)));
+        var updateItem = new MenuItem { Command = vm.DownloadUpdateCommand };
+        updateItem.SetBinding(HeaderedItemsControl.HeaderProperty, nameof(MainViewModel.UpdateMenuText));
+        updateItem.SetBinding(UIElement.VisibilityProperty,
+            new Binding(nameof(MainViewModel.UpdateAvailable)) { Converter = new BooleanToVisibilityConverter() });
+        _menu.Items.Add(updateItem);
         _menu.Items.Add(new MenuItem { Header = "Настройки…", FontWeight = FontWeights.SemiBold, Command = vm.OpenSettingsCommand });
         _menu.Items.Add(new Separator());
         _menu.Items.Add(new MenuItem { Header = "Выход", Command = vm.ExitCommand });
@@ -123,7 +128,7 @@ internal sealed class TrayIcon : IDisposable
         var name = _menuTarget == IntPtr.Zero ? "" : WindowInfo.GetDisplayName(_menuTarget);
         _centerItem.Header = _menuTarget == IntPtr.Zero
             ? "Нет окна для центрирования"
-            : name.Length == 0 ? "Центрировать последнее окно" : $"Центрировать окно «{WindowInfo.Shorten(name, 40)}»";
+            : name.Length == 0 ? "Центрировать последнее окно" : $"Центрировать окно «{WindowInfo.Shorten(name, 32)}»";
         _centerItem.IsEnabled = _menuTarget != IntPtr.Zero;
 
         _menuTargetPath = _menuTarget == IntPtr.Zero ? null : WindowInfo.GetProcessPath(_menuTarget);

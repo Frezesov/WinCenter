@@ -28,6 +28,10 @@ public sealed class AppSettings
     public bool ForceResize { get; set; }
 
     public bool WelcomeShown { get; set; }
+
+    public bool CheckForUpdates { get; set; } = true;
+    public DateTimeOffset? LastUpdateCheck { get; set; }
+    public string? LatestVersion { get; set; }
 }
 
 /// <summary>A program that automatic centering leaves alone, matched by its exe file name.</summary>

@@ -1,9 +1,13 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Net.Http;
+using System.Text.Json;
 using System.Windows.Threading;
 using WinCenter.Core;
 
 namespace WinCenter.ViewModels;
+
+public enum UpdateState { Unknown, Checking, UpToDate, Available, Failed }
 
 public sealed class MainViewModel : ObservableObject, IDisposable
 {
@@ -15,8 +19,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly HotkeyService _hotkeys;
     private readonly ForegroundWatcher _watcher;
     private readonly AutoCenterService _auto;
+    private static readonly TimeSpan UpdateCheckInterval = TimeSpan.FromHours(20);
+
     private readonly DispatcherTimer _saveTimer;
+    private readonly DispatcherTimer _updateTimer;
     private bool _autostart;
+    private UpdateState _updateState;
+    private ReleaseInfo? _latest;
 
     public event Action? OpenSettingsRequested;
     public event Action? HideRequested;
@@ -61,6 +70,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         OpenOriginalCommand = new RelayCommand(() => OpenLink(OriginalPage));
         HideToTrayCommand = new RelayCommand(() => HideRequested?.Invoke());
         ExitCommand = new RelayCommand(() => ExitRequested?.Invoke());
+        CheckUpdatesCommand = new RelayCommand(() => _ = CheckUpdatesAsync(automatic: false));
+        DownloadUpdateCommand = new RelayCommand(() => OpenLink(_latest?.Url ?? UpdateChecker.ReleasesPage));
+
+        // The first automatic check waits until startup is over, later ones look once an hour whether one is due.
+        _updateTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(15) };
+        _updateTimer.Tick += (_, _) =>
+        {
+            _updateTimer.Interval = TimeSpan.FromHours(1);
+            if (_settings.CheckForUpdates && IsUpdateCheckDue)
+                _ = CheckUpdatesAsync(automatic: true);
+        };
+        _updateTimer.Start();
+        RestoreUpdateState();
 
         ApplyHotkey();
         _auto.SetActive(Enabled && AutoEnabled);
@@ -71,6 +93,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public RelayCommand OpenOriginalCommand { get; }
     public RelayCommand HideToTrayCommand { get; }
     public RelayCommand ExitCommand { get; }
+    public RelayCommand CheckUpdatesCommand { get; }
+    public RelayCommand DownloadUpdateCommand { get; }
 
     public bool Enabled
     {
@@ -317,10 +341,111 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public string StatusTitle => Enabled ? "Центрирование работает" : "Центрирование приостановлено";
 
     // Segoe Fluent Icons: Completed when running, Pause when paused.
-    public string StatusGlyph => Enabled ? "" : "";
+    public string StatusGlyph => Enabled ? "\uE930" : "\uE769";
 
-    public string VersionText { get; } =
-        $"Версия {(typeof(MainViewModel).Assembly.GetName().Version ?? new Version(1, 0, 0)).ToString(3)}";
+    public string VersionText { get; } = $"Версия {UpdateChecker.Current.ToString(3)}";
+
+    public bool CheckForUpdates
+    {
+        get => _settings.CheckForUpdates;
+        set
+        {
+            if (Update(_settings.CheckForUpdates, value, v => _settings.CheckForUpdates = v) && value && IsUpdateCheckDue)
+                _ = CheckUpdatesAsync(automatic: true);
+        }
+    }
+
+    public bool UpdateAvailable => _updateState == UpdateState.Available && _latest is not null;
+
+    public bool CanCheckUpdates => _updateState != UpdateState.Checking;
+
+    public string UpdateTitle => _updateState switch
+    {
+        UpdateState.Checking => "Проверяю обновления…",
+        UpdateState.Available when _latest is not null => $"Доступна версия {_latest.Version.ToString(3)}",
+        UpdateState.UpToDate => "Установлена последняя версия",
+        UpdateState.Failed => "Не удалось проверить обновления",
+        _ => "Обновления",
+    };
+
+    public string UpdateDetail => _updateState switch
+    {
+        UpdateState.Available => "Откроется страница выпуска на GitHub: скачайте новый exe и замените им старый",
+        UpdateState.Failed => "Нет связи с GitHub. Проверьте подключение к интернету и попробуйте ещё раз",
+        _ => _settings.LastUpdateCheck is { } last ? $"Последняя проверка: {FormatWhen(last)}" : "Ещё не проверялось",
+    };
+
+    public string DownloadUpdateText => _latest is null ? "Скачать" : $"Скачать {_latest.Version.ToString(3)}";
+
+    public string UpdateMenuText => _latest is null ? "Доступно обновление…" : $"Доступно обновление {_latest.Version.ToString(3)}…";
+
+    private bool IsUpdateCheckDue =>
+        _settings.LastUpdateCheck is not { } last || DateTimeOffset.Now - last > UpdateCheckInterval;
+
+    // What the last check found survives restarts, so a found update is shown right away.
+    private void RestoreUpdateState()
+    {
+        if (!UpdateChecker.TryParseVersion(_settings.LatestVersion, out var known) || _settings.LastUpdateCheck is null)
+            return;
+        if (known > UpdateChecker.Current)
+        {
+            _latest = new ReleaseInfo(known, UpdateChecker.ReleasePage(known));
+            _updateState = UpdateState.Available;
+        }
+        else
+        {
+            _updateState = UpdateState.UpToDate;
+        }
+    }
+
+    private async Task CheckUpdatesAsync(bool automatic)
+    {
+        if (_updateState == UpdateState.Checking)
+            return;
+        var previous = _updateState;
+        SetUpdateState(UpdateState.Checking);
+        try
+        {
+            var latest = await UpdateChecker.GetLatestAsync(CancellationToken.None);
+            _latest = latest;
+            _settings.LastUpdateCheck = DateTimeOffset.Now;
+            _settings.LatestVersion = latest.Version.ToString(3);
+            ScheduleSave();
+            SetUpdateState(latest.Version > UpdateChecker.Current ? UpdateState.Available : UpdateState.UpToDate);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // Being offline is normal for a background check: keep what is known and try again later.
+            SetUpdateState(automatic && previous != UpdateState.Unknown ? previous : UpdateState.Failed);
+        }
+        catch (Exception ex) when (ex is JsonException or FormatException or KeyNotFoundException or InvalidOperationException)
+        {
+            ErrorLog.Write(ex);
+            SetUpdateState(automatic && previous != UpdateState.Unknown ? previous : UpdateState.Failed);
+        }
+    }
+
+    private void SetUpdateState(UpdateState state)
+    {
+        _updateState = state;
+        OnPropertyChanged(nameof(UpdateAvailable));
+        OnPropertyChanged(nameof(CanCheckUpdates));
+        OnPropertyChanged(nameof(UpdateTitle));
+        OnPropertyChanged(nameof(UpdateDetail));
+        OnPropertyChanged(nameof(DownloadUpdateText));
+        OnPropertyChanged(nameof(UpdateMenuText));
+    }
+
+    private static string FormatWhen(DateTimeOffset when)
+    {
+        var local = when.ToLocalTime();
+        var today = DateTime.Today;
+        if (local.Date == today)
+            return $"сегодня в {local:HH:mm}";
+        if (local.Date == today.AddDays(-1))
+            return $"вчера в {local:HH:mm}";
+        return local.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"));
+    }
 
     public string HotkeyText => Hotkey.ToString();
 
@@ -414,6 +539,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        _updateTimer.Stop();
         if (_saveTimer.IsEnabled)
         {
             _saveTimer.Stop();

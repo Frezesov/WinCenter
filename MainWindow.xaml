@@ -204,7 +204,35 @@
             </controls:SettingsCard>
 
             <controls:SettingsExpander Glyph="&#xE946;" Title="О программе" Description="{Binding VersionText}">
+                <controls:SettingsExpander.HeaderContent>
+                    <Border Style="{StaticResource Badge}" Margin="0"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Style="{StaticResource BadgeText}" Text="доступно обновление"
+                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    </Border>
+                </controls:SettingsExpander.HeaderContent>
                 <StackPanel>
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="{Binding UpdateTitle}" Description="{Binding UpdateDetail}">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding DownloadUpdateCommand}" Style="{DynamicResource AccentButtonStyle}" Margin="0,0,8,0"
+                                    Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVisibility}}"
+                                    AutomationProperties.Name="{Binding DownloadUpdateText}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding DownloadUpdateText}" />
+                                    <controls:Glyph Text="&#xE8A7;" FontFamily="{StaticResource IconFontFamily}" FontSize="12"
+                                                    Margin="8,1,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button Content="Проверить" MinWidth="96" Command="{Binding CheckUpdatesCommand}"
+                                    IsEnabled="{Binding CanCheckUpdates}" AutomationProperties.Name="Проверить обновления" />
+                        </StackPanel>
+                    </controls:SettingsCard>
+                    <Border Style="{StaticResource Divider}" />
+                    <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Проверять обновления автоматически"
+                                           Description="Раз в сутки программа спрашивает у GitHub, вышла ли новая версия. Сама ничего не скачивает">
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding CheckForUpdates}" />
+                    </controls:SettingsCard>
+                    <Border Style="{StaticResource Divider}" />
                     <controls:SettingsCard Style="{StaticResource SettingsRow}" Title="Страница проекта"
                                            Description="Исходный код, новые версии и описание на GitHub">
                         <Button Command="{Binding OpenProjectPageCommand}" AutomationProperties.Name="Открыть страницу проекта на GitHub">
